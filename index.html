@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Aturan keamanan: halaman hanya boleh memuat kode dari sumber yang disebut di sini -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src https://api.gold-api.com https://open.er-api.com https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Catatan Uang</title>
   <meta name="description" content="Catatan uang pribadi: pengeluaran bulanan, tabungan RDPU, dana dingin, dan emas dengan harga yang diperbarui tiap 3 jam.">
   <link rel="icon" href="data:,">
@@ -262,7 +265,7 @@
 </div>
 
 <script src="app.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js" integrity="sha384-eWPGgBROV7OvRpuavxpzaTSoHT/gkcVjZ94JzXW7WDFZB9qEb4Q9k+8bfx/c1rTM" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="partikel.js"></script>
 </body>
 </html>
