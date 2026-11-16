@@ -7,7 +7,7 @@ Aplikasi web untuk mencatat keuangan pribadi: pengeluaran bulanan, tabungan, dan
 ## Fitur
 
 - **Catat**: masukkan gaji atau uang masuk bulan ini, catat setiap pengeluaran, lalu lihat sisa uang dan bar pemakaiannya.
-- **Tabungan**: pantau tabungan reksa dana pasar uang (RDPU).
+- **Tabungan**: pantau tabungan reksa dana pasar uang (RDPU), plus **dana dingin** (dana darurat) dengan target dan progress bar.
 - **Emas**: catat pembelian emas. Harga emas per gram (dalam Rupiah) diambil otomatis setiap 3 jam dari API publik.
 - **Rekap**: ringkasan pemasukan dan pengeluaran per bulan.
 - **Backup & pulihkan**: simpan data ke file, lalu pulihkan lagi kapan saja.
