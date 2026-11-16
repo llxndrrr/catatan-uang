@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catatan Uang</title>
+  <meta name="description" content="Catatan uang pribadi: pengeluaran bulanan, tabungan RDPU, dan emas dengan harga yang diperbarui tiap 3 jam.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- Awan partikel (digambar oleh partikel.js) -->
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<div class="ui">
+
+  <!-- ===== BRAND ===== -->
+  <header class="brand">
+    <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="18.5" fill="none" stroke="#fff" stroke-width="1.6"/>
+      <polygon fill="#fff" points="20,8 22.3,14.5 28.5,11.5 25.5,17.7 32,20 25.5,22.3 28.5,28.5 22.3,25.5 20,32 17.7,25.5 11.5,28.5 14.5,22.3 8,20 14.5,17.7 11.5,11.5 17.7,14.5"/>
+    </svg>
+    <div>
+      <div class="brand-name">Catatan Uang</div>
+      <div class="brand-sub">Uang · Tabungan · Emas</div>
+    </div>
+  </header>
+
+  <div class="counter" id="counter" title="Catatan bulan ini">00</div>
+
+  <!-- ===== TAB (gaya chip) ===== -->
+  <nav class="tags" role="tablist" aria-label="Bagian">
+    <button type="button" class="tab chip on" data-tab="catat" role="tab">Catat</button>
+    <button type="button" class="tab chip" data-tab="tabungan" role="tab">Tabungan</button>
+    <button type="button" class="tab chip" data-tab="emas" role="tab">Emas</button>
+    <button type="button" class="tab chip" data-tab="rekap" role="tab">Rekap</button>
+  </nav>
+
+  <!-- ===== PANEL KIRI (bisa di-scroll) ===== -->
+  <main class="list">
+    <!-- Sisa uang yang selalu terlihat di HP (kolom kanan disembunyikan di layar kecil) -->
+    <div class="sisa-hp" aria-live="polite">
+      <span class="lbl">Sisa uang <span id="sisa-hp-bulan"></span></span>
+      <b class="hero-angka" id="sisa-hp-angka">Rp 0</b>
+    </div>
+    <div id="pengingat" class="pengingat" hidden></div>
+
+    <!-- ===== TAB CATAT ===== -->
+    <section id="tab-catat" class="panel">
+      <p class="lbl" id="catat-bulan"></p>
+      <p class="big" id="catat-sisa">Rp 0</p>
+      <div class="bar"><i id="catat-bar"></i></div>
+      <div class="meta kolom">
+        <span id="catat-masuk"></span>
+        <span id="catat-habis"></span>
+      </div>
+
+      <form id="form-gaji" class="kartu" autocomplete="off" hidden>
+        <p class="kartu-judul">Gaji bulan ini</p>
+        <input id="gaji-jumlah" class="f mono" inputmode="numeric" placeholder="Rp 0" data-rupiah aria-label="Gaji bulan ini">
+        <div id="saldo-awal-wrap" hidden>
+          <p class="kecil">Uang yang sudah kamu pegang sebelum mulai mencatat (boleh kosong)</p>
+          <input id="saldo-awal" class="f mono" inputmode="numeric" placeholder="Rp 0" data-rupiah aria-label="Uang awal">
+        </div>
+        <div class="baris">
+          <button class="btn" type="submit">Simpan</button>
+          <button class="btn-dua" type="button" id="gaji-batal">Nanti saja</button>
+        </div>
+      </form>
+
+      <form id="form-catat" class="kartu" autocomplete="off">
+        <div class="baris">
+          <input id="catat-jumlah" class="f mono grow" inputmode="numeric" placeholder="Rp 0" data-rupiah aria-label="Jumlah">
+          <input id="catat-tanggal" class="f mono" type="date" aria-label="Tanggal">
+        </div>
+        <div class="chips" id="chips"></div>
+        <input id="catat-catatan" class="f" maxlength="60" aria-label="Catatan">
+        <div class="baris">
+          <button class="btn grow" type="submit" id="catat-submit">Catat</button>
+          <button class="btn-dua" type="button" id="catat-batal" hidden>Batal</button>
+        </div>
+        <p class="error" id="catat-error" hidden></p>
+      </form>
+
+      <ul class="daftar" id="catat-daftar"></ul>
+    </section>
+
+    <!-- ===== TAB TABUNGAN (RDPU) ===== -->
+    <section id="tab-tabungan" class="panel" hidden>
+      <p class="lbl">Reksadana pasar uang · <span id="rdpu-status"></span></p>
+      <p class="big" id="rdpu-nilai">Rp 0</p>
+      <div class="meta">
+        <span>Modal <b class="mono" id="rdpu-setoran">0</b></span>
+        <span>Untung <b class="mono" id="rdpu-untung">0</b></span>
+      </div>
+
+      <form id="form-rdpu" class="kartu" autocomplete="off">
+        <div class="chips" id="aksi-rdpu">
+          <button type="button" class="chip on" data-aksi="nabung">Nabung</button>
+          <button type="button" class="chip" data-aksi="cair">Cairkan</button>
+          <button type="button" class="chip" data-aksi="perbarui">Perbarui nilai</button>
+        </div>
+        <p class="kecil" id="rdpu-petunjuk"></p>
+        <div class="baris">
+          <input id="rdpu-jumlah" class="f mono grow" inputmode="numeric" placeholder="Rp 0" data-rupiah aria-label="Jumlah">
+          <input id="rdpu-tanggal" class="f mono" type="date" aria-label="Tanggal">
+        </div>
+        <div class="baris">
+          <button class="btn grow" type="submit" id="rdpu-submit">Nabung</button>
+        </div>
+        <p class="error" id="rdpu-error" hidden></p>
+      </form>
+
+      <p class="kecil">Perkiraan dihitung dengan return
+        <input id="rdpu-return" class="f mini mono" inputmode="decimal" aria-label="Return per tahun"> % per tahun.
+        Nilai hanya bertambah di hari bursa: Sabtu, Minggu, dan libur bursa <span id="libur-sampai">2026–2027</span> tetap.</p>
+
+      <ul class="daftar" id="rdpu-daftar"></ul>
+    </section>
+
+    <!-- ===== TAB EMAS ===== -->
+    <section id="tab-emas" class="panel" hidden>
+      <p class="lbl">Emas kamu · <span id="emas-gram">0 g</span></p>
+      <p class="big emas" id="emas-nilai">Rp 0</p>
+      <div class="meta">
+        <span>Modal <b class="mono" id="emas-modal">0</b></span>
+        <span>Untung <b class="mono" id="emas-untung">0</b></span>
+      </div>
+
+      <div class="kartu harga">
+        <div class="harga-kepala">
+          <span class="lbl">Harga emas dunia / gram</span>
+          <button type="button" class="link" id="harga-perbarui">Perbarui</button>
+        </div>
+        <p class="harga-angka mono" id="harga-gram">—</p>
+        <p class="kecil" id="harga-waktu"></p>
+        <div id="harga-grafik"></div>
+        <p class="kecil redup" id="harga-detail"></p>
+      </div>
+
+      <form id="form-emas" class="kartu" autocomplete="off">
+        <div class="chips" id="aksi-emas">
+          <button type="button" class="chip on" data-aksi="beli" aria-pressed="true">Beli</button>
+          <button type="button" class="chip" data-aksi="jual" aria-pressed="false">Jual</button>
+        </div>
+        <p class="kecil" id="emas-petunjuk"></p>
+        <div class="baris">
+          <input id="emas-gram-input" class="f mono berat" inputmode="decimal" placeholder="Gram" aria-label="Berat dalam gram">
+          <input id="emas-tanggal" class="f mono" type="date" aria-label="Tanggal">
+        </div>
+        <input id="emas-jumlah" class="f mono" inputmode="numeric" placeholder="Rp 0" data-rupiah aria-label="Total rupiah">
+        <div class="baris">
+          <button class="btn grow" type="submit" id="emas-submit">Catat beli</button>
+        </div>
+        <p class="error" id="emas-error" hidden></p>
+      </form>
+
+      <p class="kecil redup">Harga patokan adalah harga emas dunia (XAU) dikonversi ke rupiah. Harga jual toko emas (Antam, Pegadaian) biasanya beberapa persen lebih tinggi, dan harga buyback-nya lebih rendah.</p>
+
+      <ul class="daftar" id="emas-daftar"></ul>
+    </section>
+
+    <!-- ===== TAB REKAP ===== -->
+    <section id="tab-rekap" class="panel" hidden>
+      <div class="bulan-nav">
+        <button type="button" class="nav" id="rekap-prev" aria-label="Bulan sebelumnya">‹</button>
+        <b id="rekap-bulan"></b>
+        <button type="button" class="nav" id="rekap-next" aria-label="Bulan berikutnya">›</button>
+        <span class="status" id="rekap-status"></span>
+      </div>
+
+      <dl class="sum" id="rekap-sum"></dl>
+
+      <p class="lbl">Habis ke mana</p>
+      <div id="rekap-kategori" class="kategori-rekap"></div>
+
+      <details>
+        <summary>Lihat semua catatan bulan ini</summary>
+        <ul class="daftar" id="rekap-daftar"></ul>
+      </details>
+    </section>
+
+    <!-- Backup untuk layar kecil (kolom kanan disembunyikan di HP) -->
+    <div class="backup-hp">
+      <button type="button" class="link" data-backup>Backup -&gt; file .json</button>
+      <label class="link" for="file-pulihkan">Pulihkan -&gt; dari file</label>
+    </div>
+  </main>
+
+  <!-- ===== KOLOM KANAN: ringkasan ===== -->
+  <aside class="about" aria-label="Ringkasan">
+    <div class="blok sisa-hero">
+      <h2>[sisa uang]</h2>
+      <p class="hero-angka" id="hero-sisa">Rp 0</p>
+      <div class="bar"><i id="hero-bar"></i></div>
+      <p id="sum-sisa"></p>
+    </div>
+    <div class="blok">
+      <h2>[harga emas]</h2>
+      <p id="sum-emas"></p>
+    </div>
+    <div class="blok">
+      <h2>[aset]</h2>
+      <ul id="sum-aset"></ul>
+    </div>
+    <div class="blok">
+      <h2>[data]</h2>
+      <p>Semua catatan tersimpan di browser ini saja. Backup rutin supaya tidak hilang.</p>
+      <button type="button" class="link" data-backup>Backup -&gt; file .json</button>
+      <label class="link" for="file-pulihkan">Pulihkan -&gt; dari file</label>
+    </div>
+  </aside>
+
+  <input type="file" id="file-pulihkan" accept=".json,application/json" hidden>
+</div>
+
+<script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+<script src="partikel.js"></script>
+</body>
+</html>

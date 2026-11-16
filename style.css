@@ -1,0 +1,225 @@
+/* =========================================================
+   Catatan Uang — gaya "motion research": layar hitam, awan
+   partikel, lapisan UI monospace tipis di atasnya.
+   ========================================================= */
+/* Palet "Emas & Ungu": angka besar bergradasi emas, label & judul lavender,
+   teks biasa krem hangat (bukan putih murni). */
+:root {
+  --accent: #b8a4ff;   /* label, judul, sorotan */
+  --text: #ede6da;     /* teks biasa: krem hangat */
+  --kuat: #f8f1e4;     /* teks yang ditonjolkan */
+  --muted: #8f8778;    /* teks redup: abu kecokelatan */
+  --chip: #1c1a17;
+  --chip-on: #efe6d4;
+  --line: #2c2924;
+  --panel: rgba(8, 7, 6, .78);
+  --plus: #7ee0a8;
+  --turun: #ff8a7a;
+  --emas: #f1c86a;
+  --emas1: #fbe3a6;    /* gradasi angka besar: terang */
+  --emas2: #e9a93b;    /* gradasi angka besar: pekat */
+  --glow: rgba(233, 169, 59, .35);
+  --mono: "SF Mono", "Menlo", "Consolas", "Liberation Mono", monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+html, body { height: 100%; overflow: hidden; background: #000; }
+body {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.35;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; color: inherit; letter-spacing: inherit; }
+button { cursor: pointer; background: none; border: 0; text-transform: inherit; }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+.mono { font-variant-numeric: tabular-nums; }
+.redup { color: var(--muted); }
+.plus { color: var(--plus); }
+.turun, .minus { color: var(--turun) !important; }
+
+/* ---------- lapisan ---------- */
+#bg { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; z-index: 0; }
+.ui { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+.ui a, .ui button, .ui label, .ui input, .list, .about { pointer-events: auto; }
+
+/* ---------- brand ---------- */
+.brand { position: absolute; top: 24px; left: 24px; display: flex; align-items: center; gap: 14px; mix-blend-mode: plus-lighter; }
+.mark { width: 40px; height: 40px; flex: none; }
+.brand-name { font-size: 20px; color: var(--kuat); line-height: 1.1; }
+.brand-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ---------- bulatan angka ---------- */
+.counter {
+  position: absolute; top: 24px; right: 24px; width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--line); background: #0a0a0a; color: var(--emas1); font-size: 14px;
+  display: grid; place-items: center; pointer-events: auto;
+}
+
+/* ---------- chip & tab ---------- */
+.tags { position: absolute; top: 112px; left: 24px; width: 380px; display: flex; flex-wrap: wrap; gap: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+.chip {
+  background: var(--chip); color: #d4cbbb; padding: 5px 9px; font-size: 11px;
+  min-height: 28px; transition: background .2s, color .2s;
+}
+.chip:hover { background: #29261f; color: var(--kuat); }
+.chip.on { background: var(--chip-on); color: #000; }
+
+/* ---------- panel kiri ---------- */
+.list {
+  position: absolute; top: 160px; left: 24px; bottom: 0; width: 380px;
+  overflow-y: auto; scrollbar-width: none; padding-bottom: 48px;
+  overscroll-behavior: contain;
+}
+.list::-webkit-scrollbar { display: none; }
+.panel { padding-top: 6px; }
+
+.lbl { color: var(--accent); font-size: 11px; }
+/* Angka besar: gradasi emas dengan cahaya lembut */
+.big, .harga-angka, .hero-angka {
+  font-size: 30px; letter-spacing: -.01em; margin: 6px 0 12px;
+  background: linear-gradient(90deg, var(--emas1), var(--emas2));
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 14px var(--glow));
+  width: fit-content; max-width: 100%;
+}
+.big.minus, .hero-angka.minus { background: none; -webkit-text-fill-color: currentColor; filter: none; }
+
+/* Sisa uang: angka paling penting, selalu terlihat di semua tab */
+.sisa-hero .hero-angka { font-size: 46px; line-height: 1.05; margin: 0 0 14px; display: block; }
+.sisa-hero .bar { margin-bottom: 12px; }
+.sisa-hero #sum-sisa { font-size: 12px; color: var(--muted); text-align: left; }
+.sisa-hero #sum-sisa b { color: var(--kuat); }
+.sisa-hp { display: none; }
+.meta { display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+.meta.kolom { flex-direction: column; gap: 4px; }
+.meta b { color: var(--kuat); font-weight: 400; }
+.kecil { font-size: 11px; color: var(--muted); margin: 8px 0; text-align: justify; }
+
+.bar { height: 2px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--emas1), var(--emas2)); transition: width .4s ease; }
+
+.kartu { background: var(--panel); border-top: 1px solid var(--line); padding: 16px 0 4px; margin-top: 18px; }
+.kartu-judul { color: var(--accent); margin-bottom: 10px; }
+.baris { display: flex; gap: 8px; margin: 8px 0; align-items: center; }
+.grow { flex: 1; min-width: 0; }
+
+.f {
+  height: 40px; width: 100%; padding: 0 10px; background: #0b0b0b; border: 1px solid var(--line);
+  border-radius: 2px; outline: none; text-transform: none; transition: border-color .2s;
+}
+.f::placeholder { color: #6b6457; text-transform: uppercase; }
+.f:focus { border-color: var(--accent); }
+.f[type="date"] { width: 150px; flex: none; color-scheme: dark; }
+.f.berat { flex: 1; min-width: 0; }
+.f.mini { width: 64px; height: 28px; display: inline-block; text-align: center; margin: 0 4px; }
+#form-catat > .f, #form-gaji .f, #form-emas > .f { margin: 8px 0; }
+
+.btn {
+  height: 40px; padding: 0 16px; background: var(--chip-on); color: #000; border-radius: 2px;
+  transition: opacity .3s;
+}
+.btn:hover { opacity: .8; }
+.btn:active { opacity: .6; }
+.btn-dua { height: 40px; padding: 0 14px; border: 1px solid var(--line); color: var(--text); border-radius: 2px; }
+.btn-dua:hover { border-color: var(--muted); }
+.link { color: var(--text); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; transition: opacity .3s; }
+.link:hover { opacity: .7; }
+.link:disabled { opacity: .4; cursor: default; }
+.error { color: var(--turun); font-size: 12px; margin: 6px 0; text-transform: none; }
+
+/* ---------- daftar catatan ---------- */
+.daftar { list-style: none; margin-top: 18px; }
+.daftar li {
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: start;
+  padding: 12px 0; border-top: 1px solid var(--line); font-size: 12px;
+}
+.daftar .isi { color: var(--kuat); min-width: 0; }
+.daftar .isi small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; text-transform: none; overflow-wrap: anywhere; }
+.daftar .isi small.tgl { text-transform: uppercase; }
+.daftar .mono { text-align: right; white-space: nowrap; }
+.daftar .pindah { color: var(--accent); }
+.daftar .aksi-baris { grid-column: 1 / -1; display: flex; gap: 14px; font-size: 11px; opacity: .55; transition: opacity .3s; }
+.daftar li:hover .aksi-baris, .daftar li:focus-within .aksi-baris { opacity: 1; }
+.daftar .kosong { display: block; color: var(--muted); }
+
+.pengingat {
+  display: flex; justify-content: space-between; gap: 12px; align-items: center;
+  border: 1px solid var(--accent); color: var(--accent); padding: 10px 12px; font-size: 11px; margin-bottom: 14px;
+}
+
+/* ---------- harga emas ---------- */
+.harga-kepala { display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+.harga-angka { font-size: 22px; margin: 6px 0 0; }
+.grafik { display: block; width: 100%; height: 56px; color: var(--emas2); margin-top: 10px; }
+#harga-detail { text-transform: none; }
+
+/* ---------- rekap ---------- */
+.bulan-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.bulan-nav b { color: var(--kuat); font-weight: 400; }
+.nav { width: 32px; height: 32px; border: 1px solid var(--line); font-size: 16px; }
+.nav:disabled { opacity: .3; cursor: default; }
+.status { margin-left: auto; color: var(--muted); font-size: 11px; }
+.sum { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+.sum dt { color: var(--muted); }
+.sum dd { text-align: right; }
+.sum .tot { color: var(--kuat); padding-top: 8px; border-top: 1px solid var(--line); }
+.sum dd.tot { color: var(--emas1); }
+.kategori-rekap { margin: 10px 0 18px; display: flex; flex-direction: column; gap: 12px; }
+.kat-kepala { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+.kat-kepala small { color: var(--muted); margin-left: 8px; }
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; color: var(--accent); }
+
+.backup-hp { display: none; }
+
+/* ---------- kolom kanan ---------- */
+/* Template memakai plus-lighter di sini; diganti bayangan gelap lembut supaya
+   angka uang tetap terbaca saat cincin partikel lewat di belakangnya. */
+.about {
+  position: absolute; right: 90px; top: 50%; transform: translateY(-50%); width: 380px;
+  background: rgba(0, 0, 0, .55);
+  box-shadow: 0 0 48px 32px rgba(0, 0, 0, .55);
+}
+.about .blok + .blok { margin-top: 2.2em; }
+.about h2 { font-size: 13px; font-weight: 400; color: var(--accent); margin-bottom: 1em; }
+.about p { text-align: justify; margin-bottom: 1em; }
+.about p b { font-weight: 400; color: var(--emas1); }
+.about ul { list-style: inside; }
+.about .link { display: block; margin: 4px 0; text-align: left; }
+
+/* ---------- responsif ---------- */
+@media (max-width: 1100px) {
+  .about { right: 24px; width: 320px; }
+}
+@media (max-width: 900px) {
+  .about { display: none; }
+  .backup-hp { display: flex; flex-direction: column; gap: 6px; margin-top: 32px; font-size: 11px; }
+  .sisa-hp {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    position: sticky; top: 0; z-index: 2; background: #000;
+    padding: 10px 0 12px; margin-bottom: 12px; border-bottom: 1px solid var(--line);
+  }
+  .sisa-hp .hero-angka { font-size: 24px; margin: 0; }
+  body[data-tab="catat"] .sisa-hp { display: none; }
+  .backup-hp .link { text-align: left; }
+}
+@media (max-width: 760px) {
+  .brand { top: 16px; left: 16px; }
+  .counter { top: 16px; right: 16px; }
+  .tags { top: 80px; left: 16px; right: 16px; width: auto; }
+  .list { top: 124px; left: 16px; right: 16px; width: auto; }
+  .big { font-size: 26px; }
+  .kecil, .about p { text-align: left; }
+  .f[type="date"] { width: 138px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
