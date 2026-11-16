@@ -16,7 +16,8 @@ const KATEGORI_BEBAS = 'kebutuhan lain'; // kategori yang catatannya wajib diisi
 const NAMA_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const BULAN_PENDEK = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 const TIPE_EMAS = ['beliEmas', 'jualEmas'];
-const TIPE_VALID = ['keluar', 'nabung', 'cair', ...TIPE_EMAS];
+const TIPE_DINGIN = ['simpanDingin', 'ambilDingin']; // dana dingin: uang simpanan yang tidak diganggu
+const TIPE_VALID = ['keluar', 'nabung', 'cair', ...TIPE_EMAS, ...TIPE_DINGIN];
 
 /* =========================================================
    2. MENYIMPAN & MEMUAT DATA (localStorage)
@@ -27,10 +28,11 @@ const TIPE_VALID = ['keluar', 'nabung', 'cair', ...TIPE_EMAS];
 function dataKosong() {
   return {
     versi: 2,
-    transaksi: [],      // pengeluaran, nabung, cairkan, beliEmas, jualEmas
+    transaksi: [],      // pengeluaran, nabung, cairkan, beliEmas, jualEmas, simpanDingin, ambilDingin
     gaji: {},           // contoh: { "2026-11": 5000000 }
     saldoAwal: 0,       // uang yang sudah dipegang sebelum mulai mencatat
     rdpu: { returnTahunan: 4.84, pembaruan: [] },
+    danaDingin: { target: 0 },
     terakhirBackup: null,
   };
 }
@@ -72,6 +74,7 @@ function rapikan(d) {
       returnTahunan: typeof rdpu.returnTahunan === 'number' ? rdpu.returnTahunan : kosong.rdpu.returnTahunan,
       pembaruan,
     },
+    danaDingin: { target: Math.max(0, Math.round(Number(d.danaDingin && d.danaDingin.target)) || 0) },
     terakhirBackup: Number(d.terakhirBackup) || null,
   };
 }
@@ -240,12 +243,14 @@ function hitungSemuaBulan() {
     const cair = total('cair');
     const beliEmas = total('beliEmas');
     const jualEmas = total('jualEmas');
-    const sisa = bawaan + gaji - keluar - nabung + cair - beliEmas + jualEmas;
+    const simpanDingin = total('simpanDingin');
+    const ambilDingin = total('ambilDingin');
+    const sisa = bawaan + gaji - keluar - nabung + cair - beliEmas + jualEmas - simpanDingin + ambilDingin;
 
     const perKategori = {};
     for (const t of tx) if (t.tipe === 'keluar') perKategori[t.kategori] = (perKategori[t.kategori] || 0) + t.jumlah;
 
-    hasil[b] = { bulan: b, bawaan, gaji, keluar, nabung, cair, beliEmas, jualEmas, sisa, perKategori, tx };
+    hasil[b] = { bulan: b, bawaan, gaji, keluar, nabung, cair, beliEmas, jualEmas, simpanDingin, ambilDingin, sisa, perKategori, tx };
     bawaan = sisa;
   }
   return hasil;
@@ -296,6 +301,17 @@ function hitungRdpu() {
   }
   tumbuhSampai(hariIni());
   return { nilai, modal, untung: nilai - modal, pasti, ada: kejadian.length > 0 };
+}
+
+/* =========================================================
+   5a. HITUNGAN DANA DINGIN
+   Uang yang disisihkan dan tidak diganggu (dana darurat).
+   Tidak berbunga: saldo = semua yang disimpan − semua yang diambil.
+   ========================================================= */
+function hitungDanaDingin() {
+  const tx = data.transaksi.filter(t => TIPE_DINGIN.includes(t.tipe));
+  const saldo = tx.reduce((s, t) => s + (t.tipe === 'simpanDingin' ? t.jumlah : -t.jumlah), 0);
+  return { saldo: Math.max(0, saldo), target: data.danaDingin.target, ada: tx.length > 0 };
 }
 
 /* =========================================================
@@ -456,6 +472,8 @@ const ui = {
   gajiDibuka: false,     // form gaji dibuka lewat tombol "ubah"
   gajiDitutup: false,    // sudah menekan "Nanti saja"
   aksiRdpu: 'nabung',
+  subTabungan: 'rdpu',   // 'rdpu' atau 'dingin'
+  aksiDingin: 'simpan',
   aksiEmas: 'beli',
   rekapBulan: bulanIni(),
 };
@@ -507,6 +525,8 @@ function renderRingkasan(semua) {
   const punya = [];
   if (e.gram > 0) punya.push(`Emas ${teksGram(e.gram)}${e.nilai !== null ? ` ≈ ${rp(e.nilai)}` : ''}`);
   if (t.ada) punya.push(`RDPU ${rp(t.nilai)}`);
+  const dd = hitungDanaDingin();
+  if (dd.ada) punya.push(`Dana dingin ${rp(dd.saldo)}`);
   $('sum-aset').innerHTML = punya.length ? punya.map(p => `<li>${esc(p)}</li>`).join('') : '<li>Belum ada tabungan atau emas.</li>';
   const jml = r.tx.length;
   $('counter').textContent = String(Math.min(jml, 99)).padStart(2, '0');
@@ -568,6 +588,8 @@ function barisHtml(t) {
   if (t.tipe === 'keluar') { judul = t.kategori; nominal = '−' + angka(t.jumlah); }
   else if (t.tipe === 'nabung') { judul = 'nabung RDPU'; nominal = '−' + angka(t.jumlah); kelas = 'pindah'; }
   else if (t.tipe === 'cair') { judul = 'cairkan RDPU'; nominal = '+' + angka(t.jumlah); kelas = 'plus'; }
+  else if (t.tipe === 'simpanDingin') { judul = 'simpan dana dingin'; nominal = '−' + angka(t.jumlah); kelas = 'pindah'; }
+  else if (t.tipe === 'ambilDingin') { judul = 'ambil dana dingin'; nominal = '+' + angka(t.jumlah); kelas = 'plus'; }
   else if (t.tipe === 'beliEmas') { judul = `beli emas ${teksGram(t.gram)}`; nominal = '−' + angka(t.jumlah); kelas = 'pindah'; }
   else { judul = `jual emas ${teksGram(t.gram)}`; nominal = '+' + angka(t.jumlah); kelas = 'plus'; }
   const tombolUbah = t.tipe === 'keluar' ? `<button type="button" class="link" data-ubah="${esc(t.id)}">ubah</button>` : '';
@@ -607,6 +629,8 @@ function renderCatat(semua) {
   if (ditabung) habis.push(`${ditabung > 0 ? 'Ditabung' : 'Dicairkan'} <b class="mono">${angka(Math.abs(ditabung))}</b>`);
   const keEmas = r.beliEmas - r.jualEmas;
   if (keEmas) habis.push(`${keEmas > 0 ? 'Ke emas' : 'Dari emas'} <b class="mono">${angka(Math.abs(keEmas))}</b>`);
+  const keDingin = r.simpanDingin - r.ambilDingin;
+  if (keDingin) habis.push(`${keDingin > 0 ? 'Ke dana dingin' : 'Dari dana dingin'} <b class="mono">${angka(Math.abs(keDingin))}</b>`);
   $('catat-habis').innerHTML = habis.join(' · ');
 
   // Form gaji muncul sendiri kalau gaji bulan ini belum diisi
@@ -624,7 +648,48 @@ const PETUNJUK_RDPU = {
 };
 const TOMBOL_RDPU = { nabung: 'Nabung', cair: 'Cairkan', perbarui: 'Simpan nilai' };
 
+const PETUNJUK_DINGIN = {
+  simpan: 'Uang pindah dari sisa uang ke dana dingin. Tidak dihitung sebagai pengeluaran.',
+  ambil: 'Ambil hanya kalau benar-benar darurat. Uangnya kembali ke sisa uang.',
+};
+
+function renderDanaDingin() {
+  const d = hitungDanaDingin();
+  $('dingin-nilai').textContent = rp(d.saldo);
+  const persen = d.target > 0 ? Math.round((d.saldo / d.target) * 100) : 0;
+  $('dingin-target-teks').innerHTML = d.target > 0
+    ? `Target <b class="mono">${angka(d.target)}</b> · kurang <b class="mono">${angka(Math.max(0, d.target - d.saldo))}</b>`
+    : 'Belum ada target';
+  $('dingin-persen').textContent = d.target > 0 ? (persen >= 100 ? 'Target tercapai 🎉' : persen + '%') : '';
+  $('dingin-bar').style.width = Math.min(100, persen) + '%';
+  if (document.activeElement !== $('dingin-target')) isiRupiah($('dingin-target'), d.target);
+
+  document.querySelectorAll('#aksi-dingin .chip').forEach(c => {
+    const on = c.dataset.aksi === ui.aksiDingin;
+    c.classList.toggle('on', on);
+    c.setAttribute('aria-pressed', on);
+  });
+  $('dingin-petunjuk').textContent = PETUNJUK_DINGIN[ui.aksiDingin];
+  $('dingin-submit').textContent = ui.aksiDingin === 'simpan' ? 'Simpan' : 'Ambil';
+
+  const riwayat = data.transaksi.filter(t => TIPE_DINGIN.includes(t.tipe)).sort(urutTerbaru);
+  $('dingin-daftar').innerHTML = riwayat.length ? riwayat.map(t => `<li>
+      <span class="isi">${t.tipe === 'simpanDingin' ? 'simpan' : 'ambil'}${t.catatan ? `<small>${esc(t.catatan)}</small>` : ''}<small class="tgl">${tanggalPendek(t.tanggal)}</small></span>
+      <span class="mono ${t.tipe === 'simpanDingin' ? 'plus' : ''}">${t.tipe === 'simpanDingin' ? '+' : '−'}${angka(t.jumlah)}</span>
+      <span class="aksi-baris"><button type="button" class="link" data-hapus="${esc(t.id)}">hapus</button></span>
+    </li>`).join('') : '<li class="kosong">Belum ada riwayat dana dingin.</li>';
+}
+
 function renderTabungan() {
+  document.querySelectorAll('#sub-tabungan .chip').forEach(c => {
+    const on = c.dataset.sub === ui.subTabungan;
+    c.classList.toggle('on', on);
+    c.setAttribute('aria-selected', on);
+  });
+  $('bagian-rdpu').hidden = ui.subTabungan !== 'rdpu';
+  $('bagian-dingin').hidden = ui.subTabungan !== 'dingin';
+  renderDanaDingin();
+
   const h = hitungRdpu();
   $('rdpu-status').textContent = !h.ada ? 'belum ada' : h.pasti ? 'nilai terbaru' : 'perkiraan';
   $('rdpu-nilai').textContent = rp(h.nilai);
@@ -671,6 +736,8 @@ function renderRekap(semua) {
   baris.push(['Habis', '−' + fmt.format(r.keluar)]);
   if (r.nabung) baris.push(['Ditabung ke RDPU', '−' + fmt.format(r.nabung)]);
   if (r.cair) baris.push(['Dicairkan dari RDPU', '+' + fmt.format(r.cair)]);
+  if (r.simpanDingin) baris.push(['Disimpan ke dana dingin', '−' + fmt.format(r.simpanDingin)]);
+  if (r.ambilDingin) baris.push(['Diambil dari dana dingin', '+' + fmt.format(r.ambilDingin)]);
   if (r.beliEmas) baris.push(['Beli emas', '−' + fmt.format(r.beliEmas)]);
   if (r.jualEmas) baris.push(['Jual emas', '+' + fmt.format(r.jualEmas)]);
   const labelSisa = selesai ? `Sisa, dibawa ke ${namaBulan(geserBulan(b, 1))}` : 'Sisa sekarang';
@@ -791,11 +858,17 @@ function mulaiUbah(id) {
 function hapusTransaksi(id) {
   const t = data.transaksi.find(x => x.id === id);
   if (!t) return;
-  const nama = { keluar: t.kategori, nabung: 'nabung RDPU', cair: 'cairkan RDPU', beliEmas: `beli emas ${teksGram(t.gram || 0)}`, jualEmas: `jual emas ${teksGram(t.gram || 0)}` }[t.tipe];
+  const nama = { keluar: t.kategori, nabung: 'nabung RDPU', cair: 'cairkan RDPU', simpanDingin: 'simpan dana dingin', ambilDingin: 'ambil dana dingin', beliEmas: `beli emas ${teksGram(t.gram || 0)}`, jualEmas: `jual emas ${teksGram(t.gram || 0)}` }[t.tipe];
   // Menghapus pembelian emas tidak boleh membuat emas yang sudah dijual jadi minus
   if (t.tipe === 'beliEmas') {
     const sisaGram = hitungEmas().gram - t.gram;
     if (sisaGram < -0.00005) return alert(`Tidak bisa dihapus: emas ini sebagian sudah dicatat terjual. Hapus dulu catatan jualnya.`);
+  }
+  // Menghapus setoran dana dingin tidak boleh membuat saldonya minus
+  if (t.tipe === 'simpanDingin') {
+    const tx = data.transaksi.filter(x => TIPE_DINGIN.includes(x.tipe) && x.id !== id);
+    const sisa = tx.reduce((s, x) => s + (x.tipe === 'simpanDingin' ? x.jumlah : -x.jumlah), 0);
+    if (sisa < 0) return alert('Tidak bisa dihapus: sebagian uang ini sudah dicatat diambil. Hapus dulu catatan ambilnya.');
   }
   if (!confirm(`Hapus "${nama}" Rp ${fmt.format(t.jumlah)} (${tanggalPendek(t.tanggal)})?`)) return;
   data.transaksi = data.transaksi.filter(x => x.id !== id);
@@ -888,6 +961,54 @@ $('rdpu-daftar').addEventListener('click', e => {
   }
 });
 
+// Dana dingin
+$('sub-tabungan').addEventListener('click', e => {
+  const b = e.target.closest('[data-sub]');
+  if (!b) return;
+  ui.subTabungan = b.dataset.sub;
+  renderTabungan();
+});
+$('aksi-dingin').addEventListener('click', e => {
+  const b = e.target.closest('[data-aksi]');
+  if (!b) return;
+  ui.aksiDingin = b.dataset.aksi;
+  $('dingin-error').hidden = true;
+  renderTabungan();
+  $('dingin-jumlah').focus();
+});
+$('form-dingin').addEventListener('submit', e => {
+  e.preventDefault();
+  const n = bacaRupiah($('dingin-jumlah').value);
+  const tanggal = $('dingin-tanggal').value || hariIni();
+  const catatan = $('dingin-catatan').value.trim();
+  if (!n) return tampilError('dingin-error', 'Isi jumlahnya dulu.');
+  if (tanggal > hariIni()) return tampilError('dingin-error', 'Tanggalnya tidak boleh di masa depan.');
+  if (ui.aksiDingin === 'ambil') {
+    const saldo = hitungDanaDingin().saldo;
+    if (n > saldo) return tampilError('dingin-error', `Dana dinginmu sekarang ${rp(saldo)}, tidak cukup untuk diambil sebanyak itu.`);
+  }
+  const tipe = ui.aksiDingin === 'simpan' ? 'simpanDingin' : 'ambilDingin';
+  data.transaksi.push({ id: idBaru(), tipe, jumlah: n, kategori: null, catatan, tanggal, dibuat: Date.now() });
+  simpan();
+  $('dingin-jumlah').value = '';
+  $('dingin-catatan').value = '';
+  $('dingin-tanggal').value = hariIni();
+  $('dingin-error').hidden = true;
+  renderSemua();
+});
+$('form-dingin').addEventListener('input', () => { $('dingin-error').hidden = true; });
+$('form-dingin-target').addEventListener('submit', e => {
+  e.preventDefault();
+  data.danaDingin.target = bacaRupiah($('dingin-target').value);
+  simpan();
+  $('dingin-target').blur();
+  renderSemua();
+});
+$('dingin-daftar').addEventListener('click', e => {
+  const b = e.target.closest('[data-hapus]');
+  if (b) hapusTransaksi(b.dataset.hapus);
+});
+
 // Emas
 $('aksi-emas').addEventListener('click', e => {
   const b = e.target.closest('[data-aksi]');
@@ -968,8 +1089,8 @@ $('file-pulihkan').addEventListener('change', async e => {
 /* =========================================================
    10. MULAI
    ========================================================= */
-$('catat-tanggal').max = $('rdpu-tanggal').max = $('emas-tanggal').max = hariIni();
-$('catat-tanggal').value = $('rdpu-tanggal').value = $('emas-tanggal').value = hariIni();
+$('catat-tanggal').max = $('rdpu-tanggal').max = $('emas-tanggal').max = $('dingin-tanggal').max = hariIni();
+$('catat-tanggal').value = $('rdpu-tanggal').value = $('emas-tanggal').value = $('dingin-tanggal').value = hariIni();
 isiRupiah($('saldo-awal'), data.saldoAwal);
 try { // salin data lama (versi planet) ke laci v2 sekali saja
   if (!localStorage.getItem(KUNCI_SIMPAN) && (data.transaksi.length || Object.keys(data.gaji).length)) simpan();

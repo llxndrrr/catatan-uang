@@ -8,10 +8,10 @@
   --accent: #b8a4ff;   /* label, judul, sorotan */
   --text: #ede6da;     /* teks biasa: krem hangat */
   --kuat: #f8f1e4;     /* teks yang ditonjolkan */
-  --muted: #8f8778;    /* teks redup: abu kecokelatan */
-  --chip: #1c1a17;
+  --muted: #b8af9f;    /* teks redup: dibuat lebih terang supaya tetap terbaca */
+  --chip: #26231e;
   --chip-on: #efe6d4;
-  --line: #2c2924;
+  --line: #3d3932;
   --panel: rgba(8, 7, 6, .78);
   --plus: #7ee0a8;
   --turun: #ff8a7a;
@@ -28,8 +28,8 @@
 html, body { height: 100%; overflow: hidden; background: #000; }
 body {
   font-family: var(--mono);
-  font-size: 13px;
-  line-height: 1.35;
+  font-size: 14px;
+  line-height: 1.45;
   letter-spacing: .02em;
   text-transform: uppercase;
   color: var(--text);
@@ -52,7 +52,7 @@ button { cursor: pointer; background: none; border: 0; text-transform: inherit; 
 .brand { position: absolute; top: 24px; left: 24px; display: flex; align-items: center; gap: 14px; mix-blend-mode: plus-lighter; }
 .mark { width: 40px; height: 40px; flex: none; }
 .brand-name { font-size: 20px; color: var(--kuat); line-height: 1.1; }
-.brand-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.brand-sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
 
 /* ---------- bulatan angka ---------- */
 .counter {
@@ -65,8 +65,8 @@ button { cursor: pointer; background: none; border: 0; text-transform: inherit; 
 .tags { position: absolute; top: 112px; left: 24px; width: 380px; display: flex; flex-wrap: wrap; gap: 6px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
 .chip {
-  background: var(--chip); color: #d4cbbb; padding: 5px 9px; font-size: 11px;
-  min-height: 28px; transition: background .2s, color .2s;
+  background: var(--chip); color: #ece3d3; padding: 6px 11px; font-size: 12.5px;
+  min-height: 32px; transition: background .2s, color .2s;
 }
 .chip:hover { background: #29261f; color: var(--kuat); }
 .chip.on { background: var(--chip-on); color: #000; }
@@ -80,7 +80,7 @@ button { cursor: pointer; background: none; border: 0; text-transform: inherit; 
 .list::-webkit-scrollbar { display: none; }
 .panel { padding-top: 6px; }
 
-.lbl { color: var(--accent); font-size: 11px; }
+.lbl { color: var(--accent); font-size: 12.5px; }
 /* Angka besar: gradasi emas dengan cahaya lembut */
 .big, .harga-angka, .hero-angka {
   font-size: 30px; letter-spacing: -.01em; margin: 6px 0 12px;
@@ -95,13 +95,13 @@ button { cursor: pointer; background: none; border: 0; text-transform: inherit; 
 /* Sisa uang: angka paling penting, selalu terlihat di semua tab */
 .sisa-hero .hero-angka { font-size: 46px; line-height: 1.05; margin: 0 0 14px; display: block; }
 .sisa-hero .bar { margin-bottom: 12px; }
-.sisa-hero #sum-sisa { font-size: 12px; color: var(--muted); text-align: left; }
+.sisa-hero #sum-sisa { font-size: 13px; color: var(--muted); text-align: left; }
 .sisa-hero #sum-sisa b { color: var(--kuat); }
 .sisa-hp { display: none; }
-.meta { display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+.meta { display: flex; justify-content: space-between; gap: 16px; font-size: 13px; color: var(--muted); margin-top: 10px; }
 .meta.kolom { flex-direction: column; gap: 4px; }
 .meta b { color: var(--kuat); font-weight: 400; }
-.kecil { font-size: 11px; color: var(--muted); margin: 8px 0; text-align: justify; }
+.kecil { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin: 8px 0; text-align: justify; }
 
 .bar { height: 2px; background: var(--line); overflow: hidden; }
 .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--emas1), var(--emas2)); transition: width .4s ease; }
@@ -115,7 +115,7 @@ button { cursor: pointer; background: none; border: 0; text-transform: inherit; 
   height: 40px; width: 100%; padding: 0 10px; background: #0b0b0b; border: 1px solid var(--line);
   border-radius: 2px; outline: none; text-transform: none; transition: border-color .2s;
 }
-.f::placeholder { color: #6b6457; text-transform: uppercase; }
+.f::placeholder { color: #958c7d; text-transform: uppercase; }
 .f:focus { border-color: var(--accent); }
 .f[type="date"] { width: 150px; flex: none; color-scheme: dark; }
 .f.berat { flex: 1; min-width: 0; }
@@ -133,30 +133,36 @@ button { cursor: pointer; background: none; border: 0; text-transform: inherit; 
 .link { color: var(--text); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; transition: opacity .3s; }
 .link:hover { opacity: .7; }
 .link:disabled { opacity: .4; cursor: default; }
-.error { color: var(--turun); font-size: 12px; margin: 6px 0; text-transform: none; }
+.error { color: var(--turun); font-size: 13px; margin: 6px 0; text-transform: none; }
 
 /* ---------- daftar catatan ---------- */
 .daftar { list-style: none; margin-top: 18px; }
 .daftar li {
   display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: start;
-  padding: 12px 0; border-top: 1px solid var(--line); font-size: 12px;
+  padding: 12px 0; border-top: 1px solid var(--line); font-size: 13px;
 }
 .daftar .isi { color: var(--kuat); min-width: 0; }
-.daftar .isi small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; text-transform: none; overflow-wrap: anywhere; }
+.daftar .isi small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 3px; text-transform: none; overflow-wrap: anywhere; }
 .daftar .isi small.tgl { text-transform: uppercase; }
 .daftar .mono { text-align: right; white-space: nowrap; }
 .daftar .pindah { color: var(--accent); }
-.daftar .aksi-baris { grid-column: 1 / -1; display: flex; gap: 14px; font-size: 11px; opacity: .55; transition: opacity .3s; }
+.daftar .aksi-baris { grid-column: 1 / -1; display: flex; gap: 16px; font-size: 12.5px; opacity: .85; transition: opacity .3s; }
 .daftar li:hover .aksi-baris, .daftar li:focus-within .aksi-baris { opacity: 1; }
 .daftar .kosong { display: block; color: var(--muted); }
 
 .pengingat {
   display: flex; justify-content: space-between; gap: 12px; align-items: center;
-  border: 1px solid var(--accent); color: var(--accent); padding: 10px 12px; font-size: 11px; margin-bottom: 14px;
+  border: 1px solid var(--accent); color: var(--accent); padding: 10px 12px; font-size: 12.5px; margin-bottom: 14px;
 }
 
+/* ---------- dana dingin ---------- */
+.sub-tab { margin: 0 0 16px; }
+.target-teks { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); margin: 10px 0 6px; }
+.target-teks b { color: var(--kuat); font-weight: 400; }
+.bar.tebal { height: 4px; }
+
 /* ---------- harga emas ---------- */
-.harga-kepala { display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+.harga-kepala { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; }
 .harga-angka { font-size: 22px; margin: 6px 0 0; }
 .grafik { display: block; width: 100%; height: 56px; color: var(--emas2); margin-top: 10px; }
 #harga-detail { text-transform: none; }
@@ -166,14 +172,14 @@ button { cursor: pointer; background: none; border: 0; text-transform: inherit; 
 .bulan-nav b { color: var(--kuat); font-weight: 400; }
 .nav { width: 32px; height: 32px; border: 1px solid var(--line); font-size: 16px; }
 .nav:disabled { opacity: .3; cursor: default; }
-.status { margin-left: auto; color: var(--muted); font-size: 11px; }
+.status { margin-left: auto; color: var(--muted); font-size: 12.5px; }
 .sum { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 18px; }
 .sum dt { color: var(--muted); }
 .sum dd { text-align: right; }
 .sum .tot { color: var(--kuat); padding-top: 8px; border-top: 1px solid var(--line); }
 .sum dd.tot { color: var(--emas1); }
 .kategori-rekap { margin: 10px 0 18px; display: flex; flex-direction: column; gap: 12px; }
-.kat-kepala { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+.kat-kepala { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
 .kat-kepala small { color: var(--muted); margin-left: 8px; }
 details { border-top: 1px solid var(--line); padding-top: 12px; }
 summary { cursor: pointer; color: var(--accent); }
@@ -189,7 +195,7 @@ summary { cursor: pointer; color: var(--accent); }
   box-shadow: 0 0 48px 32px rgba(0, 0, 0, .55);
 }
 .about .blok + .blok { margin-top: 2.2em; }
-.about h2 { font-size: 13px; font-weight: 400; color: var(--accent); margin-bottom: 1em; }
+.about h2 { font-size: 14px; font-weight: 400; color: var(--accent); margin-bottom: 1em; }
 .about p { text-align: justify; margin-bottom: 1em; }
 .about p b { font-weight: 400; color: var(--emas1); }
 .about ul { list-style: inside; }
@@ -201,7 +207,7 @@ summary { cursor: pointer; color: var(--accent); }
 }
 @media (max-width: 900px) {
   .about { display: none; }
-  .backup-hp { display: flex; flex-direction: column; gap: 6px; margin-top: 32px; font-size: 11px; }
+  .backup-hp { display: flex; flex-direction: column; gap: 6px; margin-top: 32px; font-size: 12.5px; }
   .sisa-hp {
     display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
     position: sticky; top: 0; z-index: 2; background: #000;

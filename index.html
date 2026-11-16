@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Catatan Uang</title>
-  <meta name="description" content="Catatan uang pribadi: pengeluaran bulanan, tabungan RDPU, dan emas dengan harga yang diperbarui tiap 3 jam.">
+  <meta name="description" content="Catatan uang pribadi: pengeluaran bulanan, tabungan RDPU, dana dingin, dan emas dengan harga yang diperbarui tiap 3 jam.">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -85,8 +85,54 @@
       <ul class="daftar" id="catat-daftar"></ul>
     </section>
 
-    <!-- ===== TAB TABUNGAN (RDPU) ===== -->
+    <!-- ===== TAB TABUNGAN (RDPU & DANA DINGIN) ===== -->
     <section id="tab-tabungan" class="panel" hidden>
+      <div class="chips sub-tab" id="sub-tabungan" role="tablist" aria-label="Jenis tabungan">
+        <button type="button" class="chip on" data-sub="rdpu" role="tab">RDPU</button>
+        <button type="button" class="chip" data-sub="dingin" role="tab">Dana dingin</button>
+      </div>
+
+      <!-- ----- Dana dingin: uang simpanan yang tidak boleh diganggu ----- -->
+      <div id="bagian-dingin" hidden>
+      <p class="lbl">Dana dingin · uang yang tidak diganggu</p>
+      <p class="big" id="dingin-nilai">Rp 0</p>
+      <div class="target-teks">
+        <span id="dingin-target-teks"></span>
+        <span id="dingin-persen"></span>
+      </div>
+      <div class="bar tebal"><i id="dingin-bar"></i></div>
+
+      <form id="form-dingin" class="kartu" autocomplete="off">
+        <div class="chips" id="aksi-dingin">
+          <button type="button" class="chip on" data-aksi="simpan" aria-pressed="true">Simpan</button>
+          <button type="button" class="chip" data-aksi="ambil" aria-pressed="false">Ambil</button>
+        </div>
+        <p class="kecil" id="dingin-petunjuk"></p>
+        <div class="baris">
+          <input id="dingin-jumlah" class="f mono grow" inputmode="numeric" placeholder="Rp 0" data-rupiah aria-label="Jumlah">
+          <input id="dingin-tanggal" class="f mono" type="date" aria-label="Tanggal">
+        </div>
+        <input id="dingin-catatan" class="f" maxlength="60" placeholder="catatan (boleh kosong)" aria-label="Catatan">
+        <div class="baris">
+          <button class="btn grow" type="submit" id="dingin-submit">Simpan</button>
+        </div>
+        <p class="error" id="dingin-error" hidden></p>
+      </form>
+
+      <form id="form-dingin-target" class="kartu" autocomplete="off">
+        <p class="kartu-judul">Target dana dingin</p>
+        <p class="kecil">Misalnya 3–6 kali pengeluaran bulananmu, untuk jaga-jaga kalau ada keadaan darurat. Boleh kosong.</p>
+        <div class="baris">
+          <input id="dingin-target" class="f mono grow" inputmode="numeric" placeholder="Rp 0" data-rupiah aria-label="Target dana dingin">
+          <button class="btn-dua" type="submit">Simpan target</button>
+        </div>
+      </form>
+
+      <ul class="daftar" id="dingin-daftar"></ul>
+      </div>
+
+      <!-- ----- RDPU ----- -->
+      <div id="bagian-rdpu">
       <p class="lbl">Reksadana pasar uang · <span id="rdpu-status"></span></p>
       <p class="big" id="rdpu-nilai">Rp 0</p>
       <div class="meta">
@@ -116,6 +162,7 @@
         Nilai hanya bertambah di hari bursa: Sabtu, Minggu, dan libur bursa <span id="libur-sampai">2026–2027</span> tetap.</p>
 
       <ul class="daftar" id="rdpu-daftar"></ul>
+      </div>
     </section>
 
     <!-- ===== TAB EMAS ===== -->
