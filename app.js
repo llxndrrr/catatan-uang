@@ -99,12 +99,17 @@ function muat() {
   }
 }
 
-function simpan() {
+function simpanLokal() {
   try {
     localStorage.setItem(KUNCI_SIMPAN, JSON.stringify(data));
   } catch (e) {
     alert('Gagal menyimpan: ' + e.message);
   }
+}
+// Setiap perubahan dari pengguna: simpan di browser, lalu beri tahu cloud.js (kalau sedang masuk akun)
+function simpan() {
+  simpanLokal();
+  if (typeof window.saatSimpan === 'function') window.saatSimpan();
 }
 
 function idBaru() {
@@ -1087,7 +1092,28 @@ $('file-pulihkan').addEventListener('change', async e => {
 });
 
 /* =========================================================
-   10. MULAI
+   10. PENGHUBUNG KE cloud.js (sinkron ke akun Google, opsional)
+   ========================================================= */
+function tampilkanUlang() {
+  isiRupiah($('saldo-awal'), data.saldoAwal);
+  resetFormCatat();
+  renderSemua();
+}
+window.CatatanUang = {
+  ambil: () => data,
+  adaIsi: () => data.transaksi.length > 0 || Object.keys(data.gaji).length > 0 || data.saldoAwal !== 0
+    || data.rdpu.pembaruan.length > 0 || data.danaDingin.target > 0,
+  ringkas: d => {
+    const r = rapikan(d);
+    return `${r.transaksi.length} catatan, ${Object.keys(r.gaji).length} bulan gaji`;
+  },
+  // Ganti data dengan versi dari cloud (tidak memicu unggah ulang)
+  ganti(d) { data = rapikan(d); simpanLokal(); tampilkanUlang(); },
+  hapusLokal() { data = dataKosong(); simpanLokal(); tampilkanUlang(); },
+};
+
+/* =========================================================
+   11. MULAI
    ========================================================= */
 $('catat-tanggal').max = $('rdpu-tanggal').max = $('emas-tanggal').max = $('dingin-tanggal').max = hariIni();
 $('catat-tanggal').value = $('rdpu-tanggal').value = $('emas-tanggal').value = $('dingin-tanggal').value = hariIni();

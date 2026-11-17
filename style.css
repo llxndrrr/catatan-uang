@@ -201,6 +201,32 @@ summary { cursor: pointer; color: var(--accent); }
 .about ul { list-style: inside; }
 .about .link { display: block; margin: 4px 0; text-align: left; }
 
+/* ---------- akun & cloud ---------- */
+.akun-chip { position: absolute; top: 30px; right: 80px; pointer-events: auto; white-space: nowrap; }
+.akun-chip.masuk { background: transparent; border: 1px solid var(--line); color: var(--kuat); }
+.akun-chip.masuk[data-status="gagal"] { border-color: var(--turun); color: var(--turun); }
+dialog {
+  margin: auto; width: min(460px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow-y: auto;
+  background: #0b0a09; color: var(--text); border: 1px solid var(--line); border-radius: 2px; padding: 24px;
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .9);
+}
+dialog::backdrop { background: rgba(0, 0, 0, .7); backdrop-filter: blur(3px); }
+dialog h3 { font-size: 14px; font-weight: 400; color: var(--accent); margin-bottom: 14px; }
+.teks-dialog { text-transform: none; font-size: 13.5px; line-height: 1.6; margin-bottom: 12px; letter-spacing: 0; }
+.teks-dialog p + p { margin-top: 8px; }
+.teks-dialog b, .poin-dialog b { font-weight: 400; color: var(--emas1); }
+.poin-dialog { text-transform: none; letter-spacing: 0; font-size: 13px; line-height: 1.55; margin: 0 0 16px 18px; color: var(--muted); }
+.poin-dialog li + li { margin-top: 6px; }
+.akun-status { font-size: 12.5px; margin-bottom: 12px; }
+.akun-status::before { content: "\25CF"; margin-right: 8px; color: var(--muted); }
+.akun-status.ok::before { color: var(--plus); }
+.akun-status.proses::before { color: var(--emas); }
+.akun-status.gagal::before { color: var(--turun); }
+.aksi-dialog { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.aksi-dialog .spasi { flex: 1; }
+.aksi-dialog.bungkus { flex-wrap: wrap; }
+.aksi-dialog .btn, .aksi-dialog .btn-dua { height: auto; min-height: 40px; padding: 8px 14px; }
+
 /* ---------- responsif ---------- */
 @media (max-width: 1100px) {
   .about { right: 24px; width: 320px; }
@@ -220,6 +246,9 @@ summary { cursor: pointer; color: var(--accent); }
 @media (max-width: 760px) {
   .brand { top: 16px; left: 16px; }
   .counter { top: 16px; right: 16px; }
+  .akun-chip { top: 22px; right: 68px; }
+  .akun-chip.masuk .label { display: none; }
+  .akun-chip.masuk .ikon { font-size: 15px; }
   .tags { top: 80px; left: 16px; right: 16px; width: auto; }
   .list { top: 124px; left: 16px; right: 16px; width: auto; }
   .big { font-size: 26px; }

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Aturan keamanan: halaman hanya boleh memuat kode dari sumber yang disebut di sini -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src https://api.gold-api.com https://open.er-api.com https://cdn.jsdelivr.net; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src https://api.gold-api.com https://open.er-api.com https://cdn.jsdelivr.net https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://apis.google.com; frame-src https://tugasku-21eb7.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Catatan Uang</title>
   <meta name="description" content="Catatan uang pribadi: pengeluaran bulanan, tabungan RDPU, dana dingin, dan emas dengan harga yang diperbarui tiap 3 jam.">
@@ -30,6 +30,8 @@
   </header>
 
   <div class="counter" id="counter" title="Catatan bulan ini">00</div>
+  <!-- Tombol akun: dimunculkan oleh cloud.js (tetap tersembunyi kalau Firebase gagal dimuat) -->
+  <button type="button" class="chip akun-chip" id="btn-akun" hidden>Masuk</button>
 
   <!-- ===== TAB (gaya chip) ===== -->
   <nav class="tags" role="tablist" aria-label="Bagian">
@@ -232,6 +234,7 @@
 
     <!-- Backup untuk layar kecil (kolom kanan disembunyikan di HP) -->
     <div class="backup-hp">
+      <button type="button" class="link" data-buka-akun hidden>Masuk dengan Google -&gt;</button>
       <button type="button" class="link" data-backup>Backup -&gt; file .json</button>
       <label class="link" for="file-pulihkan">Pulihkan -&gt; dari file</label>
     </div>
@@ -255,7 +258,8 @@
     </div>
     <div class="blok">
       <h2>[data]</h2>
-      <p>Semua catatan tersimpan di browser ini saja. Backup rutin supaya tidak hilang.</p>
+      <p data-teks-data>Semua catatan tersimpan di browser ini saja. Backup rutin supaya tidak hilang.</p>
+      <button type="button" class="link" data-buka-akun hidden>Masuk dengan Google -&gt;</button>
       <button type="button" class="link" data-backup>Backup -&gt; file .json</button>
       <label class="link" for="file-pulihkan">Pulihkan -&gt; dari file</label>
     </div>
@@ -264,7 +268,44 @@
   <input type="file" id="file-pulihkan" accept=".json,application/json" hidden>
 </div>
 
+<!-- ===================== DIALOG: AKUN & CLOUD ===================== -->
+<dialog id="dlg-akun">
+  <div id="akun-luar">
+    <h3>[simpan ke cloud]</h3>
+    <p class="teks-dialog">Masuk dengan akun Google supaya catatan uangmu tersimpan online. Datanya tetap aman walau riwayat browser terhapus, dan bisa dibuka di HP maupun laptop.</p>
+    <ul class="poin-dialog">
+      <li><b>Opsional.</b> Tanpa masuk pun aplikasi tetap bisa dipakai, datanya hanya tersimpan di browser ini.</li>
+      <li>Data di cloud <b>hanya bisa dibaca oleh akunmu sendiri</b>.</li>
+      <li>Yang disimpan hanya isi aplikasi ini dan ID akunmu. Akun yang sama juga dipakai Tugasku.</li>
+    </ul>
+    <p class="error" id="akun-error" hidden></p>
+    <div class="aksi-dialog">
+      <button type="button" class="btn-dua" id="akun-nanti">Nanti saja</button>
+      <button type="button" class="btn" id="akun-masuk">Masuk dengan Google</button>
+    </div>
+  </div>
+  <div id="akun-dalam" hidden>
+    <h3>[akun]</h3>
+    <p class="teks-dialog">Masuk sebagai <b id="akun-email"></b></p>
+    <p class="akun-status" id="akun-status"></p>
+    <p class="teks-dialog redup">Setiap perubahan otomatis tersimpan ke cloud. Buka Catatan Uang di perangkat lain dan masuk dengan akun yang sama untuk melihat catatanmu.</p>
+    <div class="aksi-dialog">
+      <button type="button" class="link" id="akun-keluar">Keluar</button>
+      <span class="spasi"></span>
+      <button type="button" class="btn" id="akun-tutup">Tutup</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Dialog pilihan (dipakai cloud.js) -->
+<dialog id="dlg-pilih">
+  <h3 id="pilih-judul"></h3>
+  <div class="teks-dialog" id="pilih-teks"></div>
+  <div class="aksi-dialog bungkus" id="pilih-tombol"></div>
+</dialog>
+
 <script src="app.js"></script>
+<script type="module" src="cloud.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js" integrity="sha384-eWPGgBROV7OvRpuavxpzaTSoHT/gkcVjZ94JzXW7WDFZB9qEb4Q9k+8bfx/c1rTM" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="partikel.js"></script>
 </body>
