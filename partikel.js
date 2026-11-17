@@ -238,7 +238,7 @@
     /* =====================================================
        3. SIMULASI POSISI PARTIKEL
        ===================================================== */
-    const SIZE = mobile ? 128 : 512;
+    const SIZE = mobile ? 100 : 374;   // jumlah partikel = SIZE² ≈ 140 ribu; dikurangi dari 512² (≈262 ribu) supaya cincinnya tidak terlalu tebal
     const N = SIZE * SIZE;
     const posType = floatRT ? THREE.FloatType : THREE.HalfFloatType;
     const positions = ganda(SIZE, SIZE, posType, THREE.NearestFilter);
@@ -423,7 +423,8 @@
           vec3 m = texture2D(uMatcap, ruv).rgb;
           col = mix(col, softLight(col, m), 0.8);
           col = mix(col, overlay(col, m), 0.2);
-          gl_FragColor = vec4(col * sparkle, 1.0);
+          // Diredupkan sedikit: bagian cincin yang partikelnya bertumpuk tidak jadi putih pekat
+          gl_FragColor = vec4(col * sparkle * 0.6, 1.0);
         }`,
       transparent: true, blending: THREE.AdditiveBlending, depthTest: true, depthWrite: false,
     });
